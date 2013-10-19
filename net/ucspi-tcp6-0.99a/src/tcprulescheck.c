@@ -3,12 +3,33 @@
 #include "strerr.h"
 #include "env.h"
 #include "rules.h"
+#include "ip4_bit.h"
+#include "stralloc.h"
+#include "ip6.h"
+#include "exit.h"
 
 void found(char *data,unsigned int datalen)
 {
+  int i;
   unsigned int next0;
-
+  stralloc ip6address = {0};
+  stralloc expandedip6address = {0};
+  stralloc rule_temp = {0};
+  
   buffer_puts(buffer_1,"rule ");
+
+  if (byte_chr(rules_name.s,rules_name.len,'^') < rules_name.len) {   	/* IPv6 CIDR */
+    if (bitstringtoip6(&rules_name,&ip6address) == 1)
+      stralloc_copys(&rules_name,ip6address.s);
+    else
+       strerr_die1x(100,"IPv6 address error!");
+  }
+
+  if (byte_chr(rules_name.s,rules_name.len,'_') < rules_name.len) {	/* IPv4 CIDR */
+    if (getbitasaddress(&rules_name) == -1) 
+      strerr_die1x(100,"IPv4 address error!");
+  } 
+
   buffer_put(buffer_1,rules_name.s,rules_name.len);
   buffer_puts(buffer_1,":\n");
   while ((next0 = byte_chr(data,datalen,0)) < datalen) {
@@ -44,7 +65,7 @@ main(int argc,char **argv)
     strerr_die1x(100,"tcprulescheck: usage: tcprulescheck rules.cdb");
 
   ip = env_get("TCPREMOTEIP");
-  if (!ip) ip = "0.0.0.0";
+  if (!ip) ip = "::"; 
   info = env_get("TCPREMOTEINFO");
   host = env_get("TCPREMOTEHOST");
 

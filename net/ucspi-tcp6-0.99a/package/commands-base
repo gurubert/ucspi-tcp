@@ -1,0 +1,17 @@
+addcr
+argv0
+delcr
+fixcrio
+mconnect
+mconnect-io
+rblsmtpd
+recordio
+tcpcat
+tcpclient
+tcprules
+tcprulescheck
+tcpserver
+date@
+finger@
+http@
+who@

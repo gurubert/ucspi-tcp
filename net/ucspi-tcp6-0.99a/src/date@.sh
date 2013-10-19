@@ -1,1 +1,10 @@
-HOME/bin/tcpclient -RHl0 -- "${1-0}" 13 sh -c 'exec HOME/bin/delcr <&6' | cat -v
+if [ "${1}" = "-4" -o "${1}" = "-6" ]
+then
+  vers=${1}
+  shift
+else
+  vers="-6"
+fi
+host=${1-0}
+port=13
+HOME/command/tcpclient -RHl0 "$vers" -- "$host" "$port" sh -c 'exec HOME/command/delcr <&6' | cat -v

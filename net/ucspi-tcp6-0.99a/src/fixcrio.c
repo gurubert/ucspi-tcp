@@ -6,6 +6,7 @@
 #include "exit.h"
 #include "iopause.h"
 #include "pathexec.h"
+#include "fd.h"
 
 #define FATAL "fixcrio: fatal: "
 

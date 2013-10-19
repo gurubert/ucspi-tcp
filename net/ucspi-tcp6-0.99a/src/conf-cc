@@ -1,3 +1,7 @@
-gcc -O2
+gcc -O2 -g 
 
 This will be used to compile .c files.
+
+clang -O2 -g 
+
+You can use clang instead.

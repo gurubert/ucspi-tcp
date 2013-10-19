@@ -1,13 +1,6 @@
 #include "fmt.h"
+#include "hexconversion.h"
 
-char tohex(char num) {
-  if (num<10)
-    return num+'0';
-  else if (num<16)
-    return num-10+'a';
-  else
-    return -1;
-}
 
 unsigned int fmt_xlong(register char *s,register unsigned long u)
 {

@@ -9,6 +9,8 @@
 #include "dns.h"
 #include "ip6.h"
 
+#define UDPSIZE 1024
+
 static int serverwantstcp(const char *buf,unsigned int len)
 {
   char out[12];
@@ -218,7 +220,7 @@ int dns_transmit_start(struct dns_transmit *d,const char servers[256],int flagre
 
   d->udploop = flagrecursive ? 1 : 0;
 
-  if (len + 16 > 512) return firsttcp(d);
+  if (len + 16 > UDPSIZE) return firsttcp(d);
   return firstudp(d);
 }
 
@@ -241,7 +243,7 @@ void dns_transmit_io(struct dns_transmit *d,iopause_fd *x,struct taia *deadline)
 
 int dns_transmit_get(struct dns_transmit *d,const iopause_fd *x,const struct taia *when)
 {
-  char udpbuf[513];
+  char udpbuf[UDPSIZE+1];
   unsigned char ch;
   int r;
   int fd;

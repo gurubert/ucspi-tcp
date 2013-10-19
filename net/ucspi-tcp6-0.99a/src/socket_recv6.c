@@ -34,7 +34,7 @@ int socket_recv6(int s,char *buf,unsigned int len,char ip[16],uint16 *port,uint3
   uint16_unpack_big((char *) &sa.sin6_port,port);
   if (scope_id) *scope_id=sa.sin6_scope_id;
 #else
-  byte_copy(ip,12,(char *)V4mappedprefix);
+  byte_copy(ip,12,(char *) V4mappedprefix);
   byte_copy(ip+12,4,(char *) &sa.sin_addr);
   uint16_unpack_big((char *) &sa.sin_port,port);
   if (scope_id) *scope_id=0;

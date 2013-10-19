@@ -2,12 +2,14 @@
 #define IP6_H
 
 #include "byte.h"
+#include "stralloc.h"
 
-extern unsigned int scan_ip6(const char *src,char *ip);
-extern unsigned int fmt_ip6(char *dest,const char *ip);
+int ip6tobitstring(char *ip6address, stralloc *ip6string, unsigned int prefixlen);
+int bitstringtoip6(stralloc *bits, stralloc *ip6address);
 
-extern unsigned int scan_ip6_flat(const char *src,char *);
-extern unsigned int fmt_ip6_flat(char *dest,const char *);
+extern unsigned int ip6_scan(const char *src, char *ip);
+extern unsigned int ip6_compactaddr(char *s, char ip[16]);
+extern unsigned int ip6_expandaddr(char *src, stralloc *destination);
 
 /*
  ip6 address syntax: (h = hex digit), no leading '0' required
@@ -24,5 +26,7 @@ extern const unsigned char V6loopback[16]; /*={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
 extern const unsigned char V6any[16]; /*={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; */
 
 #define ip6_isv4mapped(ip) (byte_equal(ip,12,V4mappedprefix))
+
+#define V4MAPPREFIX "::ffff:"
 
 #endif

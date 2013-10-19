@@ -105,7 +105,7 @@ main(int argc,char **argv)
 		if (optarg[j] == '+') ++j;
 		scan_ulong(optarg + j,&ctimeout[1]);
 		break;
-      case 'i': if (!scan_ip6(optarg,iplocal)) usage(); break;
+      case 'i': if (!ip6_scan(optarg,iplocal)) usage(); break;
       case 'I': netif=socket_getifidx(optarg); break;
       case 'p': scan_ulong(optarg,&u); portlocal = u; break;
       default: usage();
@@ -165,7 +165,7 @@ main(int argc,char **argv)
 	if (ip6_isv4mapped(addresses.s+j))
 	  ipstr[ip4_fmt(ipstr,addresses.s + j + 12)] = 0;
 	else
-	  ipstr[ip6_fmt(ipstr,addresses.s + j)] = 0;
+	  ipstr[ip6_compactaddr(ipstr,addresses.s + j)] = 0;
         strerr_warn5(CONNECT,ipstr," port ",strnum,": ",&strerr_sys);
       }
     }
@@ -194,7 +194,7 @@ main(int argc,char **argv)
   if (fakev4)
     ipstr[ip4_fmt(ipstr,iplocal+12)] = 0;
   else
-    ipstr[ip6_fmt(ipstr,iplocal)] = 0;
+    ipstr[ip6_compactaddr(ipstr,iplocal)] = 0;
   if (!pathexec_env("TCPLOCALIP",ipstr)) nomem();
 
   x = forcelocal;
@@ -213,7 +213,7 @@ main(int argc,char **argv)
   if (fakev4)
     ipstr[ip4_fmt(ipstr,ipremote+12)] = 0;
   else
-    ipstr[ip6_fmt(ipstr,ipremote)] = 0;
+    ipstr[ip6_compactaddr(ipstr,ipremote)] = 0;
   if (!pathexec_env("TCPREMOTEIP",ipstr)) nomem();
   if (verbosity >= 2)
     strerr_warn4("tcpclient: connected to ",ipstr," port ",strnum,0);

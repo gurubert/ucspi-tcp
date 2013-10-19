@@ -1,4 +1,14 @@
-echo "${2-}" | HOME/bin/tcpclient -RHl0 -- "${1-0}" 79 sh -c '
+if [ "${1}" = "-4" -o "${1}" = "-6" ]
+then
+  vers=${1}
+  shift
+else
+  vers="-6"
+fi
+host=${1-0}
+user=${2-}
+port=79
+echo "$user" | HOME/command/tcpclient -RHl0 "$vers" -- "$host" "$port" sh -c '
   HOME/bin/addcr >&7
-  exec HOME/bin/delcr <&6
+  exec HOME/command/delcr <&6
 ' | cat -v

@@ -21,7 +21,7 @@ static int init(char ip[256])
       if (*x == '.')
 	++x;
       else {
-        i = scan_ip6(x,ip + iplen);
+        i = ip6_scan(x,ip + iplen);
 	if (!i) break;
 	x += i;
 	iplen += 16;
@@ -41,7 +41,7 @@ static int init(char ip[256])
             while ((data.s[i] == ' ') || (data.s[i] == '\t'))
               ++i;
             if (iplen <= 60)
-              if (scan_ip6(data.s + i,ip + iplen)) {
+              if (ip6_scan(data.s + i,ip + iplen)) {
                 iplen += 16;
 	      }
           }

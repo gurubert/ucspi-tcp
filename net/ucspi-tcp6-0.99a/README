@@ -1,0 +1,41 @@
+ucspi-tcp 0.88, beta.
+20000318
+Copyright 2000
+D. J. Bernstein
+ucspi-tcp home page: http://cr.yp.to/ucspi-tcp.html
+
+ucspi-tcp-0.88-man-20020317.tar.gz
+20020318
+Copyright 2002
+G. Pape
+man pages home: http://smarden.org/pape/djb/
+
+ucspi-tcp-0.88-ipv6.diff19.bz2  
+20090319
+Copyright 2009 
+F. von Leitner
+patch home page: http://www.fefe.de/ucspi/
+
+rblsmtpd Greetdelay option
+20080227
+Copyright 2008
+E. Hoffmann
+qmail home page: http://www.fehcom.de/qmail.html
+
+tcpserver IPv4 CIDR address paser
+20120209 (Bachelor thesis)
+Copyright 2012
+J. Wehrenbrecht
+
+tcpserver compactified IPv6 address CIDR parser
+20120823 (Bachelor thesis)
+Copyright 2012
+L. B.  Minh
+
+rblsmtpd IPv6 inverse nibble computation 
+partly taken from the 'ucspi-tcp-0.88-ipv6.patch'
+Copyright 2009 
+Brandon Turner 
+http://www.brandonturner.net/blog/2009/08/qmail-ipv6/
+
+Installation instructions and further descriptions are located in ./doc. 

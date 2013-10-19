@@ -1,3 +1,5 @@
+gcc -s -m64
+
 gcc -s
 
 This will be used to link .o files into an executable.

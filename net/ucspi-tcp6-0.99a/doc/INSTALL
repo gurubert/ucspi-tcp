@@ -1,0 +1,37 @@
+Installation supplements
+------------------------
+
+The ./src directory includes some conf-* files for your adjustments:
+
+1. Plattform dependent customization
+- conf-cc (don't need to be touched -- except if clang support is needed).
+- conf-ld (remove option '-m64' and/or replace it with your architecure; 
+           ie. installing on x86-32 needs removing this flag)
+
+- man/conf-man (target for man-pages => /usr/share/man)
+
+2. Installation procedure
+Usually, you just install the package with
+
+- package/install
+
+3. Individual treatment
+
+- package/compile -- just compile
+- package/man -- install man-pages
+- package/upgrade -- for new versions
+- package/report -- report success+sysdeps to feh@fehcom.de
+
+4. Testing
+
+- package/rts -- after compilation!
+
+Note: 	This test are practically unaltered taken from ucspi-tcp-0.88. 
+	However, they mainly are based on IPv6 tests.
+	Execution takes some time and the results might not be meaningful.
+	This is in particular true for rblsmtpd.
+Caution: On MacOS X calls to tcpclient/tcpserver with unresolveable hostnames
+	results in stalled programs. 
+
+
+Erwin Hoffmann, Hoehn, 19-01-2013.
