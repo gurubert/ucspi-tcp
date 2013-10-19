@@ -25,6 +25,9 @@ void usage(void)
   strerr_die1x(100,"rblsmtpd: usage: rblsmtpd [ -b ] [ -R ] [ -t timeout ] [ -r base ] [ -a base ] smtpd [ arg ... ]");
 }
 
+int decision = 0; /* 0 undecided, 1 accept, 2 reject, 3 bounce */
+static stralloc text; /* defined if decision is 2 or 3 */
+
 char *ip_env;
 static stralloc ip_reverse;
 
@@ -33,8 +36,13 @@ void ip_init(void)
   unsigned int i;
   unsigned int j;
 
-  ip_env = env_get("TCPREMOTEIP");
-  if (!ip_env) ip_env = "";
+  if (strcmp(env_get("PROTO"), "TCP6")) {
+    ip_env = env_get("TCPREMOTEIP");
+    if (!ip_env) ip_env = "";
+  } else {
+    ip_env = "";
+    decision = 1; /* always accept IPv6 connections as there are no IPv6 DNSBLs (yet) */
+  }
 
   if (!stralloc_copys(&ip_reverse,"")) nomem();
 
@@ -52,9 +60,6 @@ unsigned long timeout = 60;
 int flagrblbounce = 0;
 int flagfailclosed = 0;
 int flagmustnotbounce = 0;
-
-int decision = 0; /* 0 undecided, 1 accept, 2 reject, 3 bounce */
-static stralloc text; /* defined if decision is 2 or 3 */
 
 static stralloc tmp;
 
