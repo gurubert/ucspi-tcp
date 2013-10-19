@@ -8,6 +8,9 @@ This Repository
 
 The patched sources in the master branch of this repository contain the following patches:
 
+- IPv6 support for tcpserver and tcpclient
+  http://www.fefe.de/ucspi/
+
 - IPv6 support for rblsmtpd
   http://gurubert.de/qmail/rblsmtpd/IPv6
   
