@@ -118,13 +118,37 @@ struct commands smtpcommands[] = {
 void rblsmtpd(void)
 {
   int i;
+  char *x;
 
+  x = env_get("RBLMESSAGE");
+  
   if (flagmustnotbounce || (decision == 2)) {
     if (!stralloc_copys(&message,"451 ")) nomem();
   }
   else
     if (!stralloc_copys(&message,"553 ")) nomem();
 
+  if (x)
+    if (!stralloc_cats(&message, x))
+      nomem();
+
+  /* replace %IP% with content of $TCPREMOTEIP in RBLSMTPD string */
+  for (i = 0;i <= ( text.len - 4 );++i)
+    if (text.s[i] == '%' && text.s[i+1] == 'I' && text.s[i+2] == 'P' && text.s[i+3] == '%') {
+
+      if (!stralloc_copyb(&tmp,text.s,i)) nomem();
+
+      if (!stralloc_cats(&tmp,ip_env)) nomem();
+
+      if (i < ( text.len - 4)) {
+	if (!stralloc_catb(&tmp,text.s + i + 4, text.len - i - 4)) nomem();
+      }
+
+      if (!stralloc_copy(&text,&tmp)) nomem();
+
+      i = i + 4;
+    }
+  
   if (text.len > 200) text.len = 200;
   if (!stralloc_cat(&message,&text)) nomem();
   for (i = 0;i < message.len;++i)
