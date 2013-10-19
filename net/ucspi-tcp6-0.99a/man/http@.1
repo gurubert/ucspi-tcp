@@ -1,0 +1,63 @@
+.TH http@ 1
+.SH NAME
+http@ \- get a web page from a host through HTTP
+.SH SYNTAX
+.B http@
+[
+.I -version 
+[
+.I host
+[
+.I page
+[
+.I port
+]
+]
+]
+]
+.SH DESCRIPTION
+.B http@
+connects via IP protocol 
+.I -version 
+('-4', '-6') to
+.I port
+on
+.IR host ,
+sends
+.B GET /\fIpage
+(with an extra CR)
+to
+.IR host ,
+and prints any data it receives,
+removing CR from the end of each line.
+
+If
+.I -version
+is not supplied
+.B http@
+uses by default IPv6.
+
+If
+.I port
+is not supplied,
+.B http@
+uses port 80 (HTTP).
+
+If
+.I page
+is not supplied,
+.B http@
+sends
+.B GET /
+to
+.IR host .
+
+If
+.I host
+is not supplied,
+.B http@
+connects to the local host.
+.SH "SEE ALSO"
+addcr(1),
+delcr(1),
+tcpclient(1)

@@ -1,0 +1,222 @@
+.TH rblsmtpd 1
+.SH NAME
+rblsmtpd \- block emails from RBL-listed sites and unwanted sources
+.SH SYNOPSIS
+.B rblsmtpd
+.I opts
+.I prog
+
+.SH DESCRIPTION
+.B rblsmtpd 
+works with any SMTP server that can run under
+.BR tcpserver (1).
+It accepts a series of getopt-style options
+.I opts
+while
+.I prog
+consists of one or more arguments.
+
+Normally
+.B rblsmtpd
+runs
+.IR prog .
+.I prog
+is expected to carry out an SMTP conversation to receive incoming emails.
+
+However,
+.B rblsmtpd
+does not invoke
+.I prog
+if it is told to block emails from this client. 
+Instead it carries out its own limited SMTP conversation, 
+temporarily rejecting all attempts to send an email. 
+Meanwhile it prints one line on descriptor 2 to log its activity.
+
+.B rblsmtpd
+drops the limited SMTP conversation after 60 seconds, 
+even if the client has not quit by then.
+
+.SH RBL LOOKUP OPTIONS
+.TP
+.B \-t \fIn
+Change the timeout to
+.I n
+seconds.
+.P
+.B Blocked clients
+.P
+If the 
+.B RBLSMTPD 
+environment variable is set and is nonempty,
+.B rblsmtpd
+blocks emails. It uses 
+.B RBLSMTPD 
+as an error message for the client. Normally
+.B rblsmtpd
+runs under
+.BR tcpserver (1);
+you can use
+.BR tcprules (1)
+to set 
+.B RBLSMTPD 
+for selected clients. 
+
+If 
+.B RBLSMTPD
+is set and is empty,
+.B rblsmtpd
+does not block emails. 
+
+If 
+.B RBLSMTPD 
+is not set,
+.B rblsmtpd
+looks up 
+.I TCPREMOTEIP
+in the RBL, and blocks emails if 
+.I TCPREMOTEIP
+is listed.
+.B tcpserver
+sets up
+.I TCPREMOTEIP 
+as the IP address of the remote host.
+.TP
+.B \-r \fIbase
+Use
+.I base
+as an RBL source. An IPv4 address
+.I a.b.c.d
+is listed by that source if
+.I d.c.b.a.base
+has a TXT record.
+An IPv6 address is expanded in it's inverse nibble format.
+.B rblsmtpd
+uses the contents of the TXT record as an error message for the client.
+.TP
+.B \-a \fIbase
+Use
+.I base
+as an anti-RBL source. An IPv4 address
+.I a.b.c.d
+is anti-listed by that source if
+.I d.c.b.a.base
+has an A record. In this case
+.B rblsmtpd
+does not block emails. The same holds for IPv6 addresses (see below) 
+and a corresponding AAAA record. 
+.P
+You may supply any number of
+.B \-r
+and
+.B \-a
+options.
+.B rblsmtpd
+tries each source in turn until it finds one that lists or anti-lists 
+.IR TCPREMOTEIP . 
+
+If you want to run your own RBL source or anti-RBL source for
+.BR rblsmtpd ,
+you can use
+.B rbldns
+from the DNScache (djbdns) package.
+
+.SH SMTP REPLIES 
+Normally, if 
+.B RBLSMTPD 
+is set,
+.B rblsmtpd
+uses a 451 error code in it's limited SMTP conversation. 
+This tells legitimate clients to try again later. 
+It gives innocent relay operators a chance to see the problem, 
+prohibit relaying, get off the RBL, and get the email delivered. 
+
+However, if 
+.B RBLSMTPD 
+begins with a hyphen ('-'),
+.B rblsmtpd
+removes the hyphen and uses a 553 error code together with the message.
+This tells legitimate clients to bounce the email immediately. 
+
+There are several error-handling options for RBL lookups:
+.TP
+.B \-B
+(Default.) Use a 451 error code for IP addresses listed in the RBL.
+.TP
+.B \-b
+Use a 553 error code for IP addresses listed in the RBL.
+.TP
+.B \-C
+(Default.) Handle RBL lookups in a ``fail-open'' mode. 
+If an RBL lookup fails temporarily, assume that the address is not listed; 
+if an anti-RBL lookup fails temporarily, assume that the address is anti-listed. 
+Unfortunately, a knowledgeable attacker can force an RBL lookup or an anti-RBL 
+lookup to fail temporarily, so that his email is not blocked.
+.TP
+.B \-c
+Handle RBL lookups in a ``fail-closed'' mode. 
+If an RBL lookup fails temporarily, assume that the address is listed 
+(but use a 451 error code even with -b). If an anti-RBL lookup fails temporarily, 
+assume that the address is not anti-listed (but use a 451 error code even if a 
+subsequent RBL lookup succeeds with -b). Unfortunately, this sometimes delays legitimate emails.
+
+
+.SH INTERROGATION MODE
+.B rblsmtpd
+may be used to only query RBLs and to present the results to
+.BR qmail-smtpd
+in an interrogation mode.
+.TP
+.B \-i
+interrogation mode; the RBL information is written on descriptor 2 and available
+via the environment variable
+.B RBLSMTPD
+for further decisions.
+
+.SH GREETDELEY OPTIONS
+Introduce a certain delay in the SMTP connection;
+either before or after the RBL, the anti-RBL lookups respectively,
+depending whether this option is defined before or after the lookups.
+.TP
+.B \-w n
+provides a delay of 'n' seconds for all connections.
+.TP
+.B \-W
+evaluate the environment variable
+.B GREETDELAY
+and potentially delay the call to
+.BR qmail-smtpd .
+
+.SH IPv4/IPv6 INVERSE NIBBLE FORMAT
+.B
+rblsmtpd 
+constructs from the incoming IP address \fITCPREMOTEIP\fR
+by means of it's inverse nibble format the resulting
+inverse domain name. If \fIPROTO\fR=\fBTCP\fR
+the standard inverse IPv4 address scheme is used, whereas
+in case of \fIPROTO\fR=\fBTCP6\fR the IPv6 inverse domain name
+is computed based on the expanded IPv6 address:
+.IP
+fe80::1 =>  
+1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.e.f.(tld)
+.P
+.B rblsmtpd 
+recognizes IPv4-mapped IPv6 addresses 
+and strips the IPv6 prefix 
+piror to build the IPv4 inverse address
+for the RBL lookup.
+
+.SH SEE ALSO
+tcpserver(1),
+tcprules(1),
+tcprulescheck(1),
+fixcrio(1),
+recordio(1),
+rblsmtpd(1),
+tcpclient(1),
+who@(1),
+date@(1),
+finger@(1),
+http@(1),
+tcpcat(1),
+mconnect(1),
+tcp-environ(5)

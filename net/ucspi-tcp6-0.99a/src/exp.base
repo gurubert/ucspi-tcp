@@ -1,0 +1,404 @@
+--- tcpclient prints usage message without enough arguments
+tcpclient: usage: tcpclient [ -46hHrRdDqQv ] [ -i localip ] [ -p localport ] [ -T timeoutconn ] [ -l localname ] [ -t timeoutinfo ] [ -I interface ] host port program
+100
+--- tcpclient prints error message with unknown port name
+tcpclient: fatal: unable to figure out port number for nonexistentport
+111
+--- tcpclient prints error message when connection fails
+tcpclient: unable to connect to ::1 port 16: connection refused
+111
+--- tcpclient -q does not print error message when connection fails
+111
+--- tcpclient prints error message with unknown host name
+tcpclient: fatal: no IP address for nonexistent.local.
+111
+--- tcpclient prints error message with unresolvable host name
+tcpclient: fatal: temporarily unable to figure out IP address for thislabelistoolongbecausednshasalimitof63charactersinasinglelabel.: protocol error
+111
+--- tcpserver prints usage message without enough arguments
+tcpserver: usage: tcpserver [ -461UXpPhHrRoOdDqQv ] [ -c limit ] [ -x rules.cdb ] [ -B banner ] [ -g gid ] [ -u uid ] [ -b backlog ] [ -l localname ] [ -t timeout ] [ -I interface ] host port program
+100
+--- tcpserver prints error message with unknown port name
+tcpserver: fatal: unable to figure out port number for nonexistentport
+111
+--- tcpserver prints error message with unknown host name
+tcpserver: fatal: no IP address for nonexistent.local.
+111
+--- tcpserver prints error message with unresolvable host name
+tcpserver: fatal: temporarily unable to figure out IP address for thislabelistoolongbecausednshasalimitof63charactersinasinglelabel.: protocol error
+111
+--- tcpserver prints error message with non-local host name
+tcpserver: fatal: unable to bind: address not available
+111
+--- tcpserver sets basic environment variables
+bannerPROTO=TCP6
+TCPLOCALHOST=Local
+TCPLOCALIP=::1
+TCPLOCALPORT=50016
+TCPREMOTEHOST=unset
+TCPREMOTEIP=::1
+TCPREMOTEPORT=50017
+TCPREMOTEINFO=unset
+TCP6INTERFACE=unset
+0
+--- tcpclient recognizes -D, -i, -r, -h, -t
+bannerPROTO=TCP6
+TCPLOCALHOST=Local
+TCPLOCALIP=::1
+TCPLOCALPORT=50016
+TCPREMOTEHOST=unset
+TCPREMOTEIP=::1
+TCPREMOTEPORT=50018
+TCPREMOTEINFO=unset
+TCP6INTERFACE=unset
+0
+--- tcpclient sets basic environment variables
+PROTO=TCP6
+TCPLOCALHOST=Local
+TCPLOCALIP=::1
+TCPLOCALPORT=50019
+TCPREMOTEHOST=unset
+TCPREMOTEIP=::1
+TCPREMOTEPORT=50016
+TCPREMOTEINFO=unset
+TCP6INTERFACE=unset
+0
+--- tcpclient looks up host names properly
+PROTO=TCP6
+TCPLOCALHOST=Local
+TCPLOCALIP=::1
+TCPLOCALPORT=50020
+TCPREMOTEHOST=unset
+TCPREMOTEIP=::1
+TCPREMOTEPORT=50016
+TCPREMOTEINFO=unset
+TCP6INTERFACE=unset
+0
+--- tcpclient -v works
+tcpclient: connected to ::1 port 50016
+ok
+0
+--- tcpserver prints error message with used port
+tcpserver: fatal: unable to bind: address already used
+111
+--- tcpcat works
+bannerPROTO=TCP6
+TCPLOCALHOST=Local
+TCPLOCALIP=::1
+TCPLOCALPORT=50016
+TCPREMOTEHOST=unset
+TCPREMOTEIP=::1
+TCPREMOTEINFO=unset
+TCP6INTERFACE=unset
+0
+--- mconnect works
+bannerPROTO=TCP6
+TCPLOCALHOST=Local
+TCPLOCALIP=::1
+TCPLOCALPORT=50016
+TCPREMOTEHOST=unset
+TCPREMOTEIP=::1
+TCPREMOTEINFO=unset
+TCP6INTERFACE=unset
+0
+--- tcprules prints usage message without enough arguments
+tcprules: usage: tcprules rules.cdb rules.tmp
+100
+--- tcprules prints error message if it cannot create tmp
+tcprules: fatal: unable to create /dev/nonexistent/tmp: file does not exist
+111
+--- tcprules prints error message if it cannot move tmp to cdb
+tcprules: fatal: unable to move test.tmp to /dev/nonexistent/cdb: file does not exist
+111
+--- tcprules printes syntax error - to short prefix
+tcprules: syntax: invalid prefix length on line: 2002/64:deny
+100
+--- tcprules creates a cdb file
+0
+--- tcprulescheck sees deny -- and converts bit length
+rule 2002::/64:
+deny connection
+0
+--- tcprulescheck does not apply deny to another host
+default:
+allow connection
+0
+--- tcprules replaces a cdb file
+0
+--- tcprulescheck finds rule with address and info
+rule joe@127.0.0.1:
+set environment variable which=first
+allow connection
+0
+--- tcprulescheck finds rule with address
+rule 18.23.0.32:
+set environment variable which=second
+allow connection
+0
+--- tcprulescheck finds one-dot wildcard
+rule 127./8:
+set environment variable which=third
+allow connection
+0
+--- tcprulescheck finds zero-dot wildcard
+rule :
+set environment variable which=fourth
+allow connection
+0
+--- tcprules handles comments, address ranges, multiple variables
+0
+default:
+allow connection
+default:
+allow connection
+default:
+allow connection
+default:
+allow connection
+default:
+allow connection
+default:
+allow connection
+default:
+allow connection
+default:
+allow connection
+default:
+allow connection
+default:
+allow connection
+default:
+allow connection
+--- tcprules handles host names
+0
+rule =known.edu:
+set environment variable which=known
+allow connection
+rule :
+set environment variable which=anybody
+allow connection
+rule :
+set environment variable which=anybody
+allow connection
+rule =.abuser.edu:
+deny connection
+rule =.abuser.edu:
+deny connection
+--- tcprulescheck searches for rules in the proper order
+0
+rule xyz@86.75.30.9:
+set environment variable which=first
+allow connection
+rule xyz@86.75.30.9:
+set environment variable which=first
+allow connection
+rule xyz@=one.two.three:
+set environment variable which=second
+allow connection
+rule 86.75.30.9:
+set environment variable which=third
+allow connection
+rule 86.75.30.9:
+set environment variable which=third
+allow connection
+rule 86.75.30.9:
+set environment variable which=third
+allow connection
+rule 86.75.30.9:
+set environment variable which=third
+allow connection
+rule =one.two.three:
+set environment variable which=fourth
+allow connection
+rule =one.two.three:
+set environment variable which=fourth
+allow connection
+rule 86.75.30.:
+set environment variable which=fifth
+allow connection
+rule 86.75.30.:
+set environment variable which=fifth
+allow connection
+rule 86.75.:
+set environment variable which=sixth
+allow connection
+rule 86.75.:
+set environment variable which=sixth
+allow connection
+rule 86.75.:
+set environment variable which=sixth
+allow connection
+rule 86.75.:
+set environment variable which=sixth
+allow connection
+rule 86.:
+set environment variable which=seventh
+allow connection
+rule 86.:
+set environment variable which=seventh
+allow connection
+rule 86.:
+set environment variable which=seventh
+allow connection
+rule 86.:
+set environment variable which=seventh
+allow connection
+rule =.two.three:
+set environment variable which=eighth
+allow connection
+rule =.two.three:
+set environment variable which=eighth
+allow connection
+rule =.three:
+set environment variable which=ninth
+allow connection
+rule =.three:
+set environment variable which=ninth
+allow connection
+rule =:
+set environment variable which=tenth
+allow connection
+rule =:
+set environment variable which=tenth
+allow connection
+rule :
+set environment variable which=eleventh
+allow connection
+rule :
+set environment variable which=eleventh
+allow connection
+--- addcr leaves an empty file alone
+0
+--- addcr leaves a partial final line alone
+test0
+--- addcr adds CR after the first line
+test^M
+0
+--- addcr adds CR after the second line
+test^M
+test2^M
+0
+--- addcr handles nulls
+t^@st^M
+0
+--- delcr leaves an empty file alone
+0
+--- delcr leaves a non-CR line alone
+test
+0
+--- delcr removes CR if a line has it
+test
+0
+--- delcr converts CR CR LF to CR LF
+test^M
+0
+--- delcr does not remove CR from a partial final line
+test^M0
+--- delcr handles a non-CR partial final line
+test0
+--- delcr handles nulls
+t^@st
+0
+--- fixcrio works
+^M
+hi^M
+there^M
+bye^M
+--- recordio works
+... < test $
+... > test $
+... < [EOF]$
+... > [EOF]$
+--- recordio handles multiple-line packets
+... < test $
+... < test2 $
+... > test $
+... > test2 $
+... < [EOF]$
+... > [EOF]$
+--- recordio handles partial final lines
+... < test+$
+... > test+$
+... < [EOF]$
+... > [EOF]$
+--- argv0 works
+zero
+0
+--- argv0 requires arguments
+argv0: usage: argv0 realname program [ arg ... ]
+100
+--- rblsmtpd does not find 127.0.0.1 on the RBL
+ok
+0
+--- rblsmtpd finds 127.0.0.2 on the RBL
+whoops
+0
+--- rblsmtpd -b uses a permanent error code
+whoops
+0
+--- rblsmtpd quits after a timeout
+whoops
+0
+--- rblsmtpd prints an immediate error message with -t0
+whoops
+0
+--- rblsmtpd understands an empty $RBLSMTPD
+ok
+0
+--- rblsmtpd understands a nonempty $RBLSMTPD
+rblsmtpd: 127.0.0.2 pid x: 451 Error
+220 rblsmtpd.local^M
+451 Error^M
+221 rblsmtpd.local^M
+0
+--- rblsmtpd understands a permanent $RBLSMTPD
+rblsmtpd: 127.0.0.2 pid x: 553 Error
+220 rblsmtpd.local^M
+553 Error^M
+221 rblsmtpd.local^M
+0
+--- rblsmtpd understands -r
+ok
+0
+--- rblsmtpd understands -a
+ok
+0
+4134
+--- tcpserver -1v prints proper messages
+50016
+tcpserver: status: 0/2
+tcpserver: status: 1/2
+tcpserver: pid x from ::x
+tcpserver: ok x Local:::1:x :::1::x
+tcpserver: end x status 0
+tcpserver: status: 0/2
+tcpserver: status: 1/2
+tcpserver: pid x from ::x
+tcpserver: ok x Local:::1:x :::1::x
+tcpserver: end x status 0
+tcpserver: status: 0/2
+tcpserver: status: 1/2
+tcpserver: pid x from ::x
+tcpserver: ok x Local:::1:x :::1::x
+tcpserver: end x status 0
+tcpserver: status: 0/2
+tcpserver: status: 1/2
+tcpserver: pid x from ::x
+tcpserver: ok x Local:::1:x :::1::x
+tcpserver: end x status 0
+tcpserver: status: 0/2
+tcpserver: status: 1/2
+tcpserver: pid x from ::x
+tcpserver: ok x Local:::1:x :::1::x
+tcpserver: end x status 0
+tcpserver: status: 0/2
+tcpserver: status: 1/2
+tcpserver: pid x from ::x
+tcpserver: ok x Local:::1:x :::1::x
+tcpserver: end x status 0
+tcpserver: status: 0/2
+tcpserver: status: 1/2
+tcpserver: pid x from ::x
+tcpserver: ok x Local:::1:x :::1::x
+tcpserver: end x status 0
+tcpserver: status: 0/2
